@@ -338,22 +338,26 @@ TIMER_SENSOR_DESC: dict[ThinQProperty, SensorEntityDescription] = {
     ),
     TimerProperty.RELATIVE_TO_START_WM: SensorEntityDescription(
         key=TimerProperty.RELATIVE_TO_START,
-        device_class=SensorDeviceClass.TIMESTAMP,
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.MINUTES,
         translation_key=TimerProperty.RELATIVE_TO_START_WM,
     ),
     TimerProperty.RELATIVE_TO_STOP_WM: SensorEntityDescription(
         key=TimerProperty.RELATIVE_TO_STOP,
-        device_class=SensorDeviceClass.TIMESTAMP,
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.MINUTES,
         translation_key=TimerProperty.RELATIVE_TO_STOP_WM,
     ),
     TimerProperty.REMAIN: SensorEntityDescription(
         key=TimerProperty.REMAIN,
-        device_class=SensorDeviceClass.TIMESTAMP,
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.MINUTES,
         translation_key=TimerProperty.REMAIN,
     ),
     TimerProperty.RUNNING: SensorEntityDescription(
         key=TimerProperty.RUNNING,
-        device_class=SensorDeviceClass.TIMESTAMP,
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.MINUTES,
         translation_key=TimerProperty.RUNNING,
     ),
 }
@@ -415,6 +419,7 @@ DEVICE_TYPE_SENSOR_MAP: dict[DeviceType, tuple[SensorEntityDescription, ...]] = 
     DeviceType.COOKTOP: (
         RUN_STATE_SENSOR_DESC[ThinQProperty.CURRENT_STATE],
         POWER_SENSOR_DESC[ThinQProperty.POWER_LEVEL],
+        TIMER_SENSOR_DESC[TimerProperty.REMAIN],
     ),
     DeviceType.DEHUMIDIFIER: (
         JOB_MODE_SENSOR_DESC[ThinQProperty.CURRENT_JOB_MODE],
@@ -588,8 +593,7 @@ class ThinQSensorEntity(ThinQEntity, SensorEntity):
             )
             if value in [0, None, time.min] or (
                 self._device_state == "power_off"
-                and self.entity_description.key
-                in [TimerProperty.REMAIN, TimerProperty.TOTAL]
+                and self.entity_description.key in TIMER_SENSOR_DESC
             ):
                 # Reset to None when power_off
                 value = None
